@@ -1,4 +1,4 @@
-<template >
+<template>
     <div>
         <v-row>
             <v-col cols="12">
@@ -66,6 +66,13 @@
                                                 </ValidationProvider>
                                             </v-col>
                                         </v-row>
+                                    </v-col>
+                                    <v-col cols="12" sm="5" align="start" justify="center"
+                                        ><v-btn class="mx-1" small color="green" dark @click="downloadHandle">
+                                            DESCARGAR XLSX <v-icon right dark> mdi-arrow-down-box </v-icon>
+                                        </v-btn>
+
+                                        <v-btn class="mx-1" small color="primary" dark @click="openForm(1)"> CREAR </v-btn>
                                     </v-col>
                                     <v-col cols="12" sm="5">
                                         <v-row class="d-flex justify-space-around mb-6">
@@ -460,7 +467,7 @@ export default {
             { text: 'ID', value: 'reservation' },
             { text: 'Colaborador', value: 'colaborador' },
             { text: 'Cliente', value: 'cliente' },
-            { text: 'Precio de Venta', value: 'precio' },
+            { text: 'Precio de Venta', value: 'precio' }
         ],
         headers: [
             { text: 'Actions', value: 'action', sortable: false },
@@ -504,6 +511,16 @@ export default {
             })
             return newArray
         },
+        downloadHandle() {
+            const data = this.listReserva()
+            console.log('data', data)
+            this.loading = true
+            const headers = ['ID', 'Cliente', 'Colaborador', 'Fecha', 'Precio']
+
+            const filename = `REPORT_RESERVAS_${Date.now()}`
+            exportXLSX({ headers, campos: ['reservation', 'cliente', 'colaborador', 'fechaCreacion', 'precio'], arrayData: data }, { filename })
+            this.loading = false
+        },
         async downloadXlsx() {
             console.log('listReserva', this.listReservation)
             this.loadingDownload = true
@@ -520,14 +537,16 @@ export default {
             console.log('listCollaborators', this.listCollaborators)
             console.log('this.listProduct', this.listProduct)
             console.log('data', data)
-            const idUnassigned=[]
-            data.data['Unassigned Reservations']? data.body.reservation.filter((x)=>{
-              data.data['Unassigned Reservations'].forEach(element => {
-                if(element==x.idRes ){
-                  idUnassigned.push(x.idReservation)
-                }
-              });
-            }) : ""
+            const idUnassigned = []
+            data.data['Unassigned Reservations']
+                ? data.body.reservation.filter((x) => {
+                      data.data['Unassigned Reservations'].forEach((element) => {
+                          if (element == x.idRes) {
+                              idUnassigned.push(x.idReservation)
+                          }
+                      })
+                  })
+                : ''
             this.reservationUndesignated = idUnassigned
             this.reservationUndesignated?.length > 0 ? (this.errorDownload = true) : null
             data.data.output.map((x) => {
@@ -666,7 +685,7 @@ export default {
             this.form.ref = item.idCollaborator
 
             // this.listPackages
-            const getPackages = await this.$store.dispatch('reservation/getPackages', { idReserva: item.id })
+            const getPackages = await this.$store.dispatch('reservation/getPackages', { idReserva: item.reservation })
             console.log('his.listTransport', this.listTransport)
             getPackages.map((x) => {
                 this.listPackages.push({
@@ -717,7 +736,7 @@ export default {
             this.$store.dispatch('persons/getPersons'),
             this.searchReserva()
         ])
-        console.log('//////mounte',this.listCollaborators)
+        console.log('//////mounte', this.listCollaborators)
         console.log('this.filter mounte v1', this.filter)
         this.formPacks.day = this.filter.date = format(new Date(), 'YYYY-MM-DD')
         console.log('this.filter mounte v2', this.filter)
