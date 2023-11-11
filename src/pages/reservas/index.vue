@@ -67,16 +67,16 @@
                                             </v-col>
                                         </v-row>
                                     </v-col>
-                                    <v-col cols="12" sm="5" align="start" justify="center"
-                                        ><v-btn class="mx-1" small color="green" dark @click="downloadHandle">
-                                            DESCARGAR XLSX <v-icon right dark> mdi-arrow-down-box </v-icon>
-                                        </v-btn>
-
-                                        <v-btn class="mx-1" small color="primary" dark @click="openForm(1)"> CREAR </v-btn>
-                                    </v-col>
                                     <v-col cols="12" sm="5">
                                         <v-row class="d-flex justify-space-around mb-6">
                                             <v-btn color="primary" @click="searchReserva">BUSCAR</v-btn>
+                                        </v-row>
+                                    </v-col>
+                                    <v-col cols="12" sm="5">
+                                        <v-row class="d-flex justify-space-around mb-6">
+                                            <div>
+                                                <a :href="pdfLink" download="download">PDF</a>
+                                            </div>
                                         </v-row>
                                     </v-col>
                                 </v-row>
@@ -448,6 +448,7 @@ import { ValidationObserver, ValidationProvider, withValidation } from 'vee-vali
 import DefaultModel from '@/models/reservation'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { format, parseISO } from 'date-fns'
+import VueHtml2pdf from 'vue-html2pdf'
 import { exportXLSX } from '@/utils'
 export default {
     data: () => ({
@@ -455,6 +456,7 @@ export default {
         formClient: DefaultModel.formClient(),
         formReservation: false,
         loadingPackages: false,
+        pdfLink: require('../../assets/sample.pdf'),
         loadingResult: false,
         loadingDownload: false,
         errorDownload: false,
@@ -510,16 +512,6 @@ export default {
                 })
             })
             return newArray
-        },
-        downloadHandle() {
-            const data = this.listReserva()
-            console.log('data', data)
-            this.loading = true
-            const headers = ['ID', 'Cliente', 'Colaborador', 'Fecha', 'Precio']
-
-            const filename = `REPORT_RESERVAS_${Date.now()}`
-            exportXLSX({ headers, campos: ['reservation', 'cliente', 'colaborador', 'fechaCreacion', 'precio'], arrayData: data }, { filename })
-            this.loading = false
         },
         async downloadXlsx() {
             console.log('listReserva', this.listReservation)
@@ -685,7 +677,7 @@ export default {
             this.form.ref = item.idCollaborator
 
             // this.listPackages
-            const getPackages = await this.$store.dispatch('reservation/getPackages', { idReserva: item.reservation })
+            const getPackages = await this.$store.dispatch('reservation/getPackages', { idReserva: item.id })
             console.log('his.listTransport', this.listTransport)
             getPackages.map((x) => {
                 this.listPackages.push({

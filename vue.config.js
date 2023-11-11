@@ -5,7 +5,11 @@ module.exports = {
     lintOnSave: false,
     outputDir: path.resolve(__dirname, 'BUILD_TEMP'),
     chainWebpack: (config) => {
-        config.module.rules.delete('eslint')
+        config.module
+            .rule('pdf')
+            .test(/\.pdf$/)
+            .use('file-loader')
+            .loader('file-loader')
     },
     devServer: {
         port: 7080, // CHANGE YOUR PORT HERE!
