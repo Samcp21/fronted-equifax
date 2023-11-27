@@ -453,7 +453,6 @@ import DefaultModel from '@/models/reservation'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { format, parseISO } from 'date-fns'
 import { exportXLSX } from '@/utils'
-import { printerRep } from '../../utils/printer'
 export default {
     data: () => ({
         form: DefaultModel.BaseForm(),
@@ -668,7 +667,7 @@ export default {
             await this.$store.dispatch('reservation/filterPackage', this.filter)
         },
         async printReservationItem(item) {
-            printerRep()
+            await this.$store.dispatch('printer/printerRep',item)
         },
         async editReservationItem(item) {
             console.log('item', item)
