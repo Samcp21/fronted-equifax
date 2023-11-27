@@ -74,9 +74,7 @@
                                     </v-col>
                                     <v-col cols="12" sm="5">
                                         <v-row class="d-flex justify-space-around mb-6">
-                                            <div>
-                                                <a :href="pdfLink" download="download">PDF</a>
-                                            </div>
+                                            <v-btn :href="pdfLink" download="download" outlined color="red" class="mx-2"> Descargar PDF </v-btn>
                                         </v-row>
                                     </v-col>
                                 </v-row>
@@ -107,6 +105,12 @@
                                 <v-icon v-bind="attrs" v-on="on" color="red" @click="deleteReservationItem(item)" small>mdi-delete</v-icon>
                             </template>
                             <span>Eliminar</span>
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-icon v-bind="attrs" v-on="on" color="blue" @click="printReservationItem(item)" small>mdi-printer</v-icon>
+                            </template>
+                            <span>Imprimir</span>
                         </v-tooltip>
                     </template>
                 </v-data-table></v-col
@@ -448,8 +452,8 @@ import { ValidationObserver, ValidationProvider, withValidation } from 'vee-vali
 import DefaultModel from '@/models/reservation'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { format, parseISO } from 'date-fns'
-import VueHtml2pdf from 'vue-html2pdf'
 import { exportXLSX } from '@/utils'
+import { printerRep } from '../../utils/printer'
 export default {
     data: () => ({
         form: DefaultModel.BaseForm(),
@@ -662,6 +666,9 @@ export default {
         async deleteReservationItem(item) {
             await this.$store.dispatch('reservation/putReservation', { ...item, isDelete: true })
             await this.$store.dispatch('reservation/filterPackage', this.filter)
+        },
+        async printReservationItem(item) {
+            printerRep()
         },
         async editReservationItem(item) {
             console.log('item', item)
